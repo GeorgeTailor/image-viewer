@@ -11,5 +11,13 @@
 <body>
 	<script src='bundle.js'></script>
 	<script src='app.js'></script>
+	<script lang="javascript">
+		var supportsCustomElementsV1 = 'customElements' in window;
+		if (!supportsCustomElementsV1) {
+			var p = document.createElement('p');
+			p.innerText = 'You are using old browser which does not support web-components. Please use Chrome, Firefox or Edge >79'
+			document.body.appendChild(p);
+		}
+	</script>
 </body>
 </html>
