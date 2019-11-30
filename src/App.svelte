@@ -1,6 +1,9 @@
 <div class="app">
-	<h2>Image viewer</h2>
-	<div style="width: 250px;">
+	<zoo-toast bind:this={_modalToast}></zoo-toast>
+	<div class="menu">
+		<h2>Image viewer</h2>
+		<div style="width: 250px;">
+	</div>
 		<zoo-input labeltext="Choose images to upload">
 			<input slot="inputelement" type="file" multiple accept=".jpg, .jpeg, .png" on:change="{e => handleFileUpload(e)}" bind:this={_input}/>
 		</zoo-input>
@@ -8,47 +11,93 @@
 	<div class="image-thumbnails-wrapper">
 		{#each images as image, i}
 			<div class="image-thumbnail">
-				<img src={image.data} alt="image" on:load="{function() {window.URL.revokeObjectURL(this.src)}}"/>
+				<img src={image.data} alt="image"/>
 				<p>{image.name}</p>
-				<zoo-button on:click="{() => removeImage(i)}">
-					<span slot="buttoncontent">Remove image</span>
+				<zoo-button on:click="{() => openDetailsView(i)}">
+					<span slot="buttoncontent">Open details view</span>
 				</zoo-button>
 			</div>
 		{:else}
 			<p>You haven't uploaded any images yet!</p>
 		{/each}
 	</div>
+	<zoo-modal bind:this={_modal} class="modal-window">
+		<img alt="image"/>
+		<zoo-feedback type="info" id="size"></zoo-feedback>
+		<zoo-feedback type="info" id="type"></zoo-feedback>
+		<zoo-feedback type="info" id="lastModified"></zoo-feedback>
+		<div class="action-buttons">
+			<div class="rename">
+				<zoo-input labeltext="Rename your file.">
+					<input slot="inputelement" type="text"/>
+				</zoo-input>
+				<zoo-button on:click="{() => handleRenameButtonClick()}">
+					<span slot="buttoncontent">Rename image</span>
+				</zoo-button>
+			</div>
+			<zoo-button type="hot" on:click="{() => removeImage()}">
+				<span slot="buttoncontent">Remove image</span>
+			</zoo-button>
+		</div>
+	</zoo-modal>
 </div>
 
 <style type="text/scss">
 	@import "variables";
 	.app {
 		margin: 20px;
+		display: grid;
+		grid-template-columns: 300px 1fr;
 	}
 
 	.image-thumbnails-wrapper {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(100px, 185px));
 		grid-template-rows: repeat(auto-fill, minmax(100px, 275px));
-		grid-gap: 30px;
+		justify-content: center;
+		grid-gap: 20px;
 		margin: 10px;
 		.image-thumbnail {
-			cursor: pointer;
 			border: 1px solid black;
 			border-radius: 5px;
 			padding: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 			img {
 				width: 150px;
 				height: 150px;
 			}
 			p {
 				text-align: center;
+				max-width: 160px;
+				max-height: 20px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				padding: 0 15px;
 			}
 
 			zoo-button {
+				cursor: pointer;
 				height: 45px;
 				display: block;
 			}
+		}
+	}
+
+	.modal-window {
+		img {
+			max-height: 500px; 
+			width: 100%;
+		}
+		.action-buttons {
+			display: flex;
+			margin: 10px;
+			gap: 10px;
+		}	
+
+		zoo-feedback {
+			margin: 5px;
 		}
 	}
 </style>
@@ -56,6 +105,10 @@
 <script>
 	let images = [];
 	let _input;
+	let _modal;
+	let _modalToast;
+	let _modalImg;
+	let _idx;
 
 	const handleFileUpload = e => {
 		const temp = [...images];
@@ -63,14 +116,38 @@
 			const file = _input.files[i];
 			temp.push({
 				data: window.URL.createObjectURL(file),
-				name: file.name
+				name: file.name,
+				size: file.size,
+				type: file.type,
+				lastModified: file.lastModified
 			});
 		}
 		images = temp;
 		_input.value = null;
 	}
 
-	const removeImage = idx => {
-		images = images.filter((img, i) => i !== idx);
+	const removeImage = () => {
+		images = images.filter((img, i) => i !== _idx);
+		_modalToast.text = 'Image was succesfully removed!';
+		_modalToast.show();
+		_modal.closeModal();
+	}
+
+	const handleRenameButtonClick = () => {
+		images[_idx].name = _modal.querySelector('input').value;
+		_modalToast.text = 'Image was succesfully renamed!';
+		_modalToast.show();
+		_modal.closeModal();
+	}
+
+	const openDetailsView = idx => {
+		_idx = idx;
+		const img = images[_idx];
+		_modal.querySelector('img').src = img.data;
+		_modal.querySelector('input').value = img.name;
+		_modal.querySelector('#size').text = `File size: ${img.size}.`;
+		_modal.querySelector('#type').text = `File type: ${img.type}.`;
+		_modal.querySelector('#lastModified').text = `Last modification date: ${new Date(img.lastModified).toISOString()}.`;
+		_modal.style.display = 'block';
 	}
 </script>
