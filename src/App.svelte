@@ -1,11 +1,11 @@
+<zoo-header imgsrc="logo.jpg" imgalt="imgalt" headertext="Image viewer"></zoo-header>
 <div class="app">
 	<zoo-toast bind:this={_modalToast}></zoo-toast>
 	<zoo-toast type="error" bind:this={_errorToast}></zoo-toast>
 	<div class="menu">
-		<h2>Image viewer</h2>
 		<div style="width: 250px;">
 	</div>
-		<zoo-input labeltext="Choose images to upload">
+		<zoo-input labeltext="Choose images to upload" infotext="Supported extensions are: .jpg, .jpeg, .png">
 			<input slot="inputelement" type="file" multiple accept=".jpg, .jpeg, .png" on:change="{e => handleFileUpload(e)}" bind:this={_input}/>
 		</zoo-input>
 	</div>
@@ -135,7 +135,6 @@
 		let badFiles = [];
 		for (let i = 0; i < _input.files.length; i++) {
 			const file = _input.files[i];
-			console.log(file.type);
 			if (!supportedExtensions.includes(file.type)) {
 				badFiles.push(file.name);
 			} else {
