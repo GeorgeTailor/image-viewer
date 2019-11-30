@@ -46,7 +46,6 @@
 </div>
 
 <style type="text/scss">
-	@import "variables";
 	.app {
 		margin: 20px;
 		display: grid;
