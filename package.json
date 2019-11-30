@@ -1,0 +1,24 @@
+{
+  "name": "image-viewer",
+  "version": "1.0.0",
+  "devDependencies": {
+    "concurrently": "^5.0.0",
+    "eslint": "^6.7.1",
+    "eslint-plugin-svelte3": "2.7.3",
+    "node-sass": "^4.13.0",
+    "rollup": "^1.27.5",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-svelte": "^5.1.1",
+    "rollup-plugin-terser": "^5.1.2",
+    "serve": "^11.2.0",
+    "stylelint": "^12.0.0",
+    "svelte": "3.16.0"
+  },
+  "scripts": {
+    "start": "concurrently --kill-others \"serve docs\"  \"rollup -c -w\"",
+    "lint": "eslint --ext '.svelte' components",
+    "stylelint": "stylelint 'components/**/*.svelte'"
+  },
+  "author": "Yuriy Kravets",
+  "license": "MIT"
+}

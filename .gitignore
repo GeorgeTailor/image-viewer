@@ -1,0 +1,13 @@
+/node_modules
+dist/
+.DS_Store
+/coverage
+/.nyc_output
+docs/bundle-esm*
+
+docs/bundle-docs\.js\.map
+components/
+.bitmap
+bit-export.js
+.idea
+node_modules
