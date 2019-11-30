@@ -50,7 +50,11 @@
 	.app {
 		margin: 20px;
 		display: grid;
-		grid-template-columns: 300px 1fr;
+		grid-template-columns: auto 1fr;
+
+		@media only screen and (max-width: 550px) {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	.image-thumbnails-wrapper {
@@ -94,6 +98,9 @@
 			grid-template-columns: 400px 1fr;
 			max-height: 700px;
 			max-width: 100%;
+			@media only screen and (max-width: 720px) {
+				grid-template-columns: 1fr;
+			}
 			img {
 				max-height: 500px; 
 				width: 100%;
