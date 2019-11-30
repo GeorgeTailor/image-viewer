@@ -1,5 +1,6 @@
 <div class="app">
 	<zoo-toast bind:this={_modalToast}></zoo-toast>
+	<zoo-toast type="error" bind:this={_errorToast}></zoo-toast>
 	<div class="menu">
 		<h2>Image viewer</h2>
 		<div style="width: 250px;">
@@ -22,22 +23,24 @@
 		{/each}
 	</div>
 	<zoo-modal bind:this={_modal} class="modal-window">
-		<img alt="image"/>
-		<zoo-feedback type="info" id="size"></zoo-feedback>
-		<zoo-feedback type="info" id="type"></zoo-feedback>
-		<zoo-feedback type="info" id="lastModified"></zoo-feedback>
-		<div class="action-buttons">
-			<div class="rename">
-				<zoo-input labeltext="Rename your file.">
-					<input slot="inputelement" type="text"/>
-				</zoo-input>
-				<zoo-button on:click="{() => handleRenameButtonClick()}">
-					<span slot="buttoncontent">Rename image</span>
+		<div class="modal-content">
+			<div class="action-buttons">
+				<div class="rename">
+					<zoo-input labeltext="Rename your file.">
+						<input slot="inputelement" type="text"/>
+					</zoo-input>
+					<zoo-button on:click="{() => handleRenameButtonClick()}">
+						<span slot="buttoncontent">Rename image</span>
+					</zoo-button>
+				</div>
+				<zoo-button type="hot" on:click="{() => removeImage()}">
+					<span slot="buttoncontent">Remove image</span>
 				</zoo-button>
 			</div>
-			<zoo-button type="hot" on:click="{() => removeImage()}">
-				<span slot="buttoncontent">Remove image</span>
-			</zoo-button>
+			<div class="image-info">
+				<img alt="image"/>
+				<ul></ul>
+			</div>
 		</div>
 	</zoo-modal>
 </div>
@@ -86,18 +89,33 @@
 	}
 
 	.modal-window {
-		img {
-			max-height: 500px; 
-			width: 100%;
-		}
-		.action-buttons {
-			display: flex;
-			margin: 10px;
-			gap: 10px;
-		}	
+		.modal-content {
+			display: grid;
+			grid-template-columns: 400px 1fr;
+			max-height: 700px;
+			max-width: 100%;
+			img {
+				max-height: 500px; 
+				width: 100%;
+			}
+			.action-buttons {
+				display: flex;
+				flex-direction: column;
+				margin: 10px;
+				gap: 10px;
 
-		zoo-feedback {
-			margin: 5px;
+				.rename {
+					display: flex;
+					flex-direction: column;
+					padding: 5px;
+					border: 1px solid black;
+					border-radius: 5px;
+				}
+			}	
+
+			zoo-feedback {
+				margin: 5px;
+			}
 		}
 	}
 </style>
@@ -109,18 +127,32 @@
 	let _modalToast;
 	let _modalImg;
 	let _idx;
+	let _errorToast;
+	const supportedExtensions = ['image/jpg', 'image/jpeg', 'image/png'];
 
 	const handleFileUpload = e => {
 		const temp = [...images];
+		let badFiles = [];
 		for (let i = 0; i < _input.files.length; i++) {
 			const file = _input.files[i];
-			temp.push({
-				data: window.URL.createObjectURL(file),
-				name: file.name,
-				size: file.size,
-				type: file.type,
-				lastModified: file.lastModified
-			});
+			console.log(file.type);
+			if (!supportedExtensions.includes(file.type)) {
+				badFiles.push(file.name);
+			} else {
+				temp.push({
+					data: window.URL.createObjectURL(file),
+					name: file.name,
+					size: file.size,
+					type: file.type,
+					lastModified: file.lastModified
+				});
+			}
+		}
+
+		if (badFiles.length > 0) {
+			_errorToast.text = `Could not upload ${badFiles.length} files. File names are: ${badFiles.join(', ')}`;
+			_errorToast.show();
+			badFiles = [];
 		}
 		images = temp;
 		_input.value = null;
@@ -143,11 +175,26 @@
 	const openDetailsView = idx => {
 		_idx = idx;
 		const img = images[_idx];
+		const imgName = img.name;
+		_modal.headertext = imgName;
 		_modal.querySelector('img').src = img.data;
-		_modal.querySelector('input').value = img.name;
-		_modal.querySelector('#size').text = `File size: ${img.size}.`;
-		_modal.querySelector('#type').text = `File type: ${img.type}.`;
-		_modal.querySelector('#lastModified').text = `Last modification date: ${new Date(img.lastModified).toISOString()}.`;
+		_modal.querySelector('input').value = imgName;
+
+		const ul = _modal.querySelector('ul');
+		ul.innerHTML = '';
+
+		const size = document.createElement('li');
+		size.textContent = `File size: ${img.size} bytes.`;
+		ul.appendChild(size);
+
+		const type = document.createElement('li');
+		type.textContent = `File type: ${img.type}.`;
+		ul.appendChild(type);
+
+		const lastModified = document.createElement('li');
+		lastModified.textContent = `Last modification date: ${new Date(img.lastModified).toISOString()}.`;
+		ul.appendChild(lastModified);
+
 		_modal.style.display = 'block';
 	}
 </script>
