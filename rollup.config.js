@@ -74,14 +74,5 @@ export default [
 			file: 'docs/app.js',
 			name: 'app'
 		}
-	},
-	Object.assign({}, shared, {
-		input: 'src/components.js',
-		output: {
-			sourcemap: true,
-			format: 'iife',
-			file: 'docs/bundle.js',
-			name: 'iife'
-		}
-	})
+	}
 ];
