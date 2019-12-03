@@ -75,8 +75,11 @@
 			flex-direction: column;
 			align-items: center;
 			img {
-				width: 150px;
-				height: 150px;
+				max-width: 150px;
+				max-height: 150px;
+				width: auto;
+				height: auto;
+				margin-bottom: auto;
 			}
 			p {
 				text-align: center;
