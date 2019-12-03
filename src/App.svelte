@@ -3,8 +3,6 @@
 	<zoo-toast bind:this={_modalToast}></zoo-toast>
 	<zoo-toast type="error" bind:this={_errorToast}></zoo-toast>
 	<div class="menu">
-		<div style="width: 250px;">
-	</div>
 		<zoo-input labeltext="Choose images to upload" infotext="Supported extensions are: .jpg, .jpeg, .png">
 			<input slot="inputelement" type="file" multiple accept=".jpg, .jpeg, .png" on:change="{e => handleFileUpload(e)}" bind:this={_input}/>
 		</zoo-input>
@@ -39,7 +37,13 @@
 			</div>
 			<div class="image-info">
 				<img alt="image"/>
-				<ul></ul>
+				<ul>
+					{#if _modalImg}
+						<li>File size: {_modalImg.size} bytes.</li>
+						<li>File type: {_modalImg.type} bytes.</li>
+						<li>Last modification date: {new Date(_modalImg.lastModified).toISOString()}.</li>
+					{/if}
+				</ul>
 			</div>
 		</div>
 	</zoo-modal>
@@ -179,27 +183,11 @@
 
 	const openDetailsView = idx => {
 		_idx = idx;
-		const img = images[_idx];
-		const imgName = img.name;
+		_modalImg = images[_idx];
+		const imgName = _modalImg.name;
 		_modal.headertext = imgName;
-		_modal.querySelector('img').src = img.data;
+		_modal.querySelector('img').src = _modalImg.data;
 		_modal.querySelector('input').value = imgName;
-
-		const ul = _modal.querySelector('ul');
-		ul.innerHTML = '';
-
-		const size = document.createElement('li');
-		size.textContent = `File size: ${img.size} bytes.`;
-		ul.appendChild(size);
-
-		const type = document.createElement('li');
-		type.textContent = `File type: ${img.type}.`;
-		ul.appendChild(type);
-
-		const lastModified = document.createElement('li');
-		lastModified.textContent = `Last modification date: ${new Date(img.lastModified).toISOString()}.`;
-		ul.appendChild(lastModified);
-
 		_modal.style.display = 'block';
 	}
 </script>
